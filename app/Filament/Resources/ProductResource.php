@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Enums\ProductTypeEnum;
+use App\Filament\Resources\ProductResource\Pages;
+use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Models\Product;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Forms\FormsComponent;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+
+class ProductResource extends Resource
+{
+    protected static ?string $model = Product::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Shop';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Group::make()->schema([
+                    Forms\Components\Section::make()->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->unique(ignoreRecord: true)
+                            ->afterStateUpdated(function (string $operation, $state, Forms\Set $set) {
+                                if ($operation !== "create") return;
+
+                                $set('slug', Str::slug($state));
+                            }),
+                        Forms\Components\TextInput::make("slug")
+                            ->disabled()
+                            ->required()
+                            ->dehydrated()
+                            ->unique(Product::class, "slug", ignoreRecord: true),
+                        Forms\Components\MarkdownEditor::make("description")->columnSpan("full"),
+                    ])
+                        ->columns(2),
+
+                    Forms\Components\Section::make("Thumbnail")
+                        ->schema([
+                            Forms\Components\FileUpload::make("thumbnail")
+                                ->directory("form-attachments")
+                                ->preserveFilenames()
+                                ->image()
+                                ->imageEditor()
+                                ->hiddenLabel(),
+                        ])
+                        ->collapsible(),
+
+                    Forms\Components\Section::make("Price & Inventory")->schema([
+                        Forms\Components\TextInput::make("price")
+                            ->numeric()
+                            ->minValue(0)
+                            ->required(),
+                        Forms\Components\TextInput::make("qty")
+                            ->numeric()
+                            ->minValue(0)
+                            ->label("Quantity")
+                            ->required(),
+                        Forms\Components\TextInput::make("sku")
+                            ->label("SKU (Stock Keeping Unit")
+                            ->unique(),
+                        Forms\Components\Select::make("type")
+                            ->options([
+                                "downloadable" => ProductTypeEnum::DOWNLOADABLE->value,
+                                "deliverable" => ProductTypeEnum::DELIVERABLE->value,
+                            ])->default("deliverable"),
+                    ])
+                        ->columns(2),
+                ])->columnSpan(2),
+
+                Forms\Components\Group::make()->schema([
+                    Forms\Components\Section::make("Status")->schema([
+                        Forms\Components\Toggle::make("is_visible")
+                            ->label("Visibility")
+                            ->default(true)
+                            ->helperText("Enable or disable prodoct visibility."),
+                        Forms\Components\Toggle::make("is_featured")
+                            ->label("Featured")
+                            ->helperText("Enable or disable product featured status."),
+                        Forms\Components\DatePicker::make("published_at")
+                            ->label("Availabilty")
+                            ->default(now()),
+                    ]),
+                    Forms\Components\Section::make("Associations")->schema([
+                        Forms\Components\Select::make("brand_id")->label("Brand")->relationship("brand", "name")
+                    ])
+                ]),
+            ])->columns(3);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                ImageColumn::make("thumbnail")->toggleable(),
+                TextColumn::make("name")->sortable()->searchable()->toggleable(),
+                TextColumn::make("brand.name")->sortable()->searchable()->toggleable(),
+                TextColumn::make("price")->sortable()->toggleable(),
+                TextColumn::make("qty")->label("Quantity")->sortable()->toggleable(),
+                IconColumn::make("is_visible")->label("Visibility")->boolean()->sortable()->toggleable(),
+                IconColumn::make("is_featured")->label("Featured")->boolean()->sortable()->toggleable(),
+                TextColumn::make("type")->sortable(),
+            ])
+            ->filters([
+                Filter::make('Featured')
+                    ->query(fn (Builder $query): Builder => $query->where('is_featured', true)),
+                Filter::make('Visibility')
+                    ->query(fn (Builder $query): Builder => $query->where('is_visible', true))
+            ])
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListProducts::route('/'),
+            'create' => Pages\CreateProduct::route('/create'),
+            'edit' => Pages\EditProduct::route('/{record}/edit'),
+        ];
+    }
+}
