@@ -68,7 +68,7 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make("name")->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make("slug")->searchable()->toggleable(),
-                Tables\Columns\TextColumn::make("cateogry.name")->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("cateogry.name")->label("Parent Category")->searchable()->toggleable(),
                 Tables\Columns\IconColumn::make("is_visible")->label("Visibility")->boolean()->searchable()->toggleable(),
             ])
             ->filters([

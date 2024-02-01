@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,20 @@ class ProductResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Shop';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static int $globalSearchResultsLimit = 20;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -43,12 +58,15 @@ class ProductResource extends Resource
 
                                 $set('slug', Str::slug($state));
                             }),
+
                         Forms\Components\TextInput::make("slug")
                             ->disabled()
                             ->required()
                             ->dehydrated()
                             ->unique(Product::class, "slug", ignoreRecord: true),
-                        Forms\Components\MarkdownEditor::make("description")->columnSpan("full"),
+
+                        Forms\Components\MarkdownEditor::make("description")
+                            ->columnSpan("full"),
                     ])
                         ->columns(2),
 
@@ -99,7 +117,14 @@ class ProductResource extends Resource
                             ->default(now()),
                     ]),
                     Forms\Components\Section::make("Associations")->schema([
-                        Forms\Components\Select::make("brand_id")->label("Brand")->relationship("brand", "name")
+                        Forms\Components\Select::make("categories")
+                            ->label("Category")
+                            ->multiple()
+                            ->relationship("categories", "name")
+                            ->required(),
+                        Forms\Components\Select::make("brand_id")
+                            ->label("Brand")
+                            ->relationship("brand", "name"),
                     ])
                 ]),
             ])->columns(3);
@@ -112,6 +137,7 @@ class ProductResource extends Resource
                 ImageColumn::make("thumbnail")->toggleable(),
                 TextColumn::make("name")->sortable()->searchable()->toggleable(),
                 TextColumn::make("brand.name")->sortable()->searchable()->toggleable(),
+                TextColumn::make("categories.name")->sortable()->searchable()->toggleable(),
                 TextColumn::make("price")->sortable()->toggleable(),
                 TextColumn::make("qty")->label("Quantity")->sortable()->toggleable(),
                 IconColumn::make("is_visible")->label("Visibility")->boolean()->sortable()->toggleable(),

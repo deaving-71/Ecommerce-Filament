@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -22,6 +23,11 @@ class OrderResource extends Resource
 
     protected static ?string $navigationGroup = "Shop";
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where("status", "=", "processing")->count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -36,11 +42,14 @@ class OrderResource extends Resource
                                 ->unique()
                                 ->required(),
 
-                            Forms\Components\Select::make("customer_id")->relationship("customer", "name")
+                            Forms\Components\Select::make("user_id")
+                                ->label("Customer")
+                                ->relationship("customer", "name")
                                 ->searchable()
                                 ->required(),
 
                             Forms\Components\ToggleButtons::make("status")
+                                ->required()
                                 ->options([
                                     'pending' => 'Pending',
                                     'processing' => 'Processing',
@@ -63,7 +72,27 @@ class OrderResource extends Resource
 
                     Forms\Components\Wizard\Step::make('Order Items')
                         ->schema([
-                            // ...
+                            Forms\Components\Repeater::make("Items")
+                                ->hiddenLabel()
+                                ->relationship()
+                                ->schema([
+                                    Forms\Components\Select::make("product_id")
+                                        ->label("Product")
+                                        ->required()
+                                        ->options(Product::query()->pluck("name", "id")),
+
+                                    Forms\Components\TextInput::make("quantity")
+                                        ->required()
+                                        ->numeric()
+                                        ->default(1),
+
+                                    Forms\Components\TextInput::make("unit_price")
+                                        ->label("Unit Price")
+                                        ->required()
+                                        ->numeric()
+                                        ->dehydrated()
+                                        ->disabled()
+                                ])->columns(3)
                         ]),
                 ])->columnSpanFull()
             ]);
