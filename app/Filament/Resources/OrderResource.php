@@ -25,7 +25,7 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where("status", "=", "processing")->count();
+        return static::getModel()::where("status", "=", "pending")->count();
     }
 
     public static function form(Form $form): Form
@@ -37,14 +37,14 @@ class OrderResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('number')
                                 ->default('OR-' . random_int(100000, 9999999))
+                                ->unique(ignoreRecord: true)
+                                ->required()
                                 ->disabled()
-                                ->dehydrated()
-                                ->unique()
-                                ->required(),
+                                ->dehydrated(),
 
                             Forms\Components\Select::make("user_id")
                                 ->label("Customer")
-                                ->relationship("customer", "name")
+                                ->relationship("user", "name")
                                 ->searchable()
                                 ->required(),
 
@@ -67,32 +67,45 @@ class OrderResource extends Resource
                                     'declined' => 'danger',
                                 ])->inline(),
 
+                            Forms\Components\TextInput::make("shipping_price")
+                                ->required(),
+
                             Forms\Components\MarkdownEditor::make("notes")->columnSpanFull(),
                         ])->columns(2),
 
                     Forms\Components\Wizard\Step::make('Order Items')
                         ->schema([
-                            Forms\Components\Repeater::make("Items")
+                            Forms\Components\Repeater::make("items")
                                 ->hiddenLabel()
                                 ->relationship()
                                 ->schema([
                                     Forms\Components\Select::make("product_id")
                                         ->label("Product")
                                         ->required()
-                                        ->options(Product::query()->pluck("name", "id")),
+                                        ->options(Product::query()->pluck("name", "id"))
+                                        ->reactive()
+                                        ->afterStateUpdated(fn ($state, Forms\Set $set) => $set("unit_price", Product::find($state)?->price ?? 0)),
 
-                                    Forms\Components\TextInput::make("quantity")
+
+                                    Forms\Components\TextInput::make("qty")
                                         ->required()
                                         ->numeric()
-                                        ->default(1),
+                                        ->default(1)
+                                        ->live(),
 
                                     Forms\Components\TextInput::make("unit_price")
                                         ->label("Unit Price")
                                         ->required()
                                         ->numeric()
-                                        ->dehydrated()
                                         ->disabled()
-                                ])->columns(3)
+                                        ->dehydrated(),
+
+                                    Forms\Components\Placeholder::make("total_price")
+                                        ->label("Total Price")
+                                        ->content(function ($get) {
+                                            return $get("qty") * $get("unit_price");
+                                        })
+                                ])->columns(4)
                         ]),
                 ])->columnSpanFull()
             ]);
@@ -102,19 +115,16 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\Layout\Stack::make([
-                    Tables\Columns\TextColumn::make("number")->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("number")->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("user.fullname")->label("Customer")->searchable()->sortable()->toggleable(),
 
-                    Tables\Columns\TextColumn::make("customers.name")->searchable()->sortable()->toggleable(),
-                ]),
-
-                Tables\Columns\TextColumn::make("total_price")
-                    ->summarize([
-                        Tables\Columns\Summarizers\Sum::make()->money()
-                    ])
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
+                // Tables\Columns\TextColumn::make("total_price")
+                //     ->summarize([
+                //         Tables\Columns\Summarizers\Sum::make()->money()
+                //     ])
+                //     ->searchable()
+                //     ->sortable()
+                //     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()

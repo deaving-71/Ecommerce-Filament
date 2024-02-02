@@ -37,7 +37,7 @@ class UserResource extends Resource
                     ]),
                     Forms\Components\Section::make("Customer Details")->schema([
                         Forms\Components\TextInput::make("fullname")->required(),
-                        Forms\Components\TextInput::make("phone")->required(),
+                        Forms\Components\TextInput::make("phone")->tel()->required(),
                     ])->columns(2),
                 ]),
                 Forms\Components\Group::make()->schema([

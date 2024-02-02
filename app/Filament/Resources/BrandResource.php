@@ -48,7 +48,7 @@ class BrandResource extends Resource
                             ->required()
                             ->dehydrated()
                             ->unique(Brand::class, "slug", ignoreRecord: true),
-                        Forms\Components\TextInput::make("url")->label("Website URL")->columnSpan("full"),
+                        Forms\Components\TextInput::make("url")->url()->label("Website URL")->columnSpan("full"),
                         Forms\Components\MarkdownEditor::make("description")->columnSpan("full"),
                     ])->columns(2)
 

@@ -14,14 +14,13 @@ class Order extends Model
 
     protected $fillable = [
         'number',
-        'customer_id',
-        'total_price',
+        'user_id',
         'status',
         'shipping_price',
         'notes'
     ];
 
-    public function customer(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

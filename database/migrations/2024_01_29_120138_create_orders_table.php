@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string("number")->unique();
             $table->foreignId("user_id")->constrained("users")->cascadeOnDelete();
-            $table->decimal("total_price", 10, 2);
             $table->enum("status", ["pending", "processing", "shipped", "delivered", "canceled", "declined"])->default("pending");
             $table->decimal("shipping_price")->nullable();
             $table->longText("notes")->nullable();
