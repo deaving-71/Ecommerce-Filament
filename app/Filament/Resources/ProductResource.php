@@ -5,15 +5,13 @@ namespace App\Filament\Resources;
 use App\Enums\ProductTypeEnum;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Models\Category;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,13 +23,15 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $navigationGroup = 'Shop';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static int $globalSearchResultsLimit = 20;
+
+    protected static ?int $navigationSort = 1;
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -120,10 +120,12 @@ class ProductResource extends Resource
                         Forms\Components\Select::make("categories")
                             ->label("Category")
                             ->multiple()
-                            ->relationship("categories", "name")
-                            ->required(),
+                            ->required()
+                            ->native(false)
+                            ->options(Category::query()->pluck("name", "id")),
                         Forms\Components\Select::make("brand_id")
                             ->label("Brand")
+                            ->native(false)
                             ->relationship("brand", "name"),
                     ])
                 ]),
@@ -134,15 +136,15 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make("thumbnail")->toggleable(),
-                TextColumn::make("name")->sortable()->searchable()->toggleable(),
-                TextColumn::make("brand.name")->sortable()->searchable()->toggleable(),
-                TextColumn::make("categories.name")->sortable()->searchable()->toggleable(),
-                TextColumn::make("price")->sortable()->toggleable(),
-                TextColumn::make("qty")->label("Quantity")->sortable()->toggleable(),
-                IconColumn::make("is_visible")->label("Visibility")->boolean()->sortable()->toggleable(),
-                IconColumn::make("is_featured")->label("Featured")->boolean()->sortable()->toggleable(),
-                TextColumn::make("type")->sortable(),
+                Tables\Columns\ImageColumn::make("thumbnail")->toggleable(),
+                Tables\Columns\TextColumn::make("name")->sortable()->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("brand.name")->sortable()->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("categories.name")->sortable()->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make("price")->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make("qty")->label("Quantity")->sortable()->toggleable(),
+                Tables\Columns\ToggleColumn::make("is_visible")->label("Visibility")->sortable()->toggleable(),
+                Tables\Columns\ToggleColumn::make("is_featured")->label("Featured")->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make("type")->sortable(),
             ])
             ->filters([
                 Filter::make('Featured')

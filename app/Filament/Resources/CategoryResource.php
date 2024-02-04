@@ -20,10 +20,11 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
 
     protected static ?string $navigationGroup = 'Shop';
 
+    protected static ?int $navigationSort = 3;
     public static function form(Form $form): Form
     {
         return $form
@@ -69,7 +70,7 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make("name")->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make("slug")->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make("cateogry.name")->label("Parent Category")->searchable()->toggleable(),
-                Tables\Columns\IconColumn::make("is_visible")->label("Visibility")->boolean()->searchable()->toggleable(),
+                Tables\Columns\ToggleColumn::make("is_visible")->label("Visibility")->searchable()->toggleable(),
             ])
             ->filters([
                 Filter::make('Visibility')

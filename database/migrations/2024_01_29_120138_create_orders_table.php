@@ -18,6 +18,8 @@ return new class extends Migration
             $table->enum("status", ["pending", "processing", "shipped", "delivered", "canceled", "declined"])->default("pending");
             $table->decimal("shipping_price")->nullable();
             $table->longText("notes")->nullable();
+            $table->decimal("subtotal", 10, 2);
+            $table->decimal("total", 10, 2);
             $table->softDeletes();
             $table->timestamps();
         });

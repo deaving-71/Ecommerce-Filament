@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -19,11 +20,13 @@ class UserResource extends Resource
 
     protected static ?string $modelLabel = "Customers";
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationGroup = 'Manage Users';
+    protected static ?string $navigationGroup = 'Users';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {
@@ -67,11 +70,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make("name")->label("username")->searchable()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make("email")->searchable()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make("phone")->searchable()->sortable()->toggleable(),
-                Tables\Columns\TextColumn::make("state")->searchable()->sortable()->toggleable(),
+                Tables\Columns\IconColumn::make("is_active")->label("Status")->boolean()->toggleable(),
                 Tables\Columns\TextColumn::make("created_at")->sortable()->toggleable()->date(),
             ])
             ->filters([
-                //
+                Filter::make('Status')
+                    ->query(fn (Builder $query): Builder => $query->where('is_active', true))
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

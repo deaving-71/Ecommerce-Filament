@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Infolists\Components;
@@ -30,11 +31,11 @@ class BlogPostResource extends Resource
 
     protected static ?string $label = 'Post';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationGroup = 'Blog';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 6;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
@@ -80,15 +81,20 @@ class BlogPostResource extends Resource
                         Forms\Components\Select::make('blog_category_id')
                             ->label("Category")
                             ->required()
-                            ->options(BlogCategory::query()->pluck("name", "id"))
+                            ->options(BlogCategory::query()->pluck("name", "id")),
+
+                        SpatieTagsInput::make('tags')
+                            ->required(),
                     ])->columns(2),
 
                 Forms\Components\Section::make("Image")
                     ->schema([
-                        Forms\Components\FileUpload::make('image')
-                            ->hiddenLabel()
+                        Forms\Components\FileUpload::make("image")
+                            ->directory("form-attachments")
+                            ->preserveFilenames()
                             ->image()
-                            ->required()
+                            ->imageEditor()
+                            ->hiddenLabel(),
                     ])
             ]);
     }
@@ -141,7 +147,8 @@ class BlogPostResource extends Resource
                                     ]),
                                     Components\Group::make([
                                         Components\TextEntry::make('slug'),
-                                        Components\SpatieTagsEntry::make('tags'),
+                                        Components\SpatieTagsEntry::make('tags')
+                                            ->badge(),
                                     ]),
                                 ]),
                             Components\ImageEntry::make('image')
@@ -179,9 +186,9 @@ class BlogPostResource extends Resource
     {
         return [
             'index' => Pages\ListPosts::route('/'),
-            'view' => Pages\ViewPost::route('/{record}'),
-            'create' => Pages\CreatePost::route('/create'),
+            'create' => Pages\CreatePost::route("/create"),
             'edit' => Pages\EditPost::route('/{record}/edit'),
+            'view' => Pages\ViewPost::route('/{record}'),
         ];
     }
 }
