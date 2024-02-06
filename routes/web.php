@@ -1,7 +1,8 @@
 <?php
 
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
-
+use Inertia\Inertia;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,5 +15,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $products = Product::where("is_featured", 1)->where("is_visible", 1)->take(8)->get();
+    return Inertia::render("Home", [
+        'products' => $products
+    ]);
+});
+
+Route::get('/shop', function () {
+    return Inertia::render("Shop");
+});
+
+Route::get('/collections', function () {
+    return Inertia::render("Collections");
 });
