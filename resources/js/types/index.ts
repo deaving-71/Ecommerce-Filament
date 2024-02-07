@@ -6,8 +6,20 @@ export type IconsType = {
 
 export type ProductType = "deliverable" | "downloadable";
 
+export type Collection = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    parent_id: number | null;
+    is_visible: number;
+    created_at: string;
+    updated_at: string;
+};
+
 export type Product = {
     id: number;
+    categories: Collection[];
     brand_id: number | null;
     name: string;
     slug: string;

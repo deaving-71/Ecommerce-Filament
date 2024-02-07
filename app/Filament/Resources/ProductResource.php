@@ -118,6 +118,7 @@ class ProductResource extends Resource
                     ]),
                     Forms\Components\Section::make("Associations")->schema([
                         Forms\Components\Select::make("categories")
+                            ->relationship()
                             ->label("Category")
                             ->multiple()
                             ->required()

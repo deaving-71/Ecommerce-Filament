@@ -6,10 +6,10 @@ export function Hero() {
     return (
         <Section aria-labelledby="hero" className="relative pt-0">
             <img
-                src="https://placekitten.com/g/1920/800"
-                className="object-cover object-center h-[450px] md:h-[600px] lg:h-[800px]"
+                src="https://placekitten.com/g/1920/600"
+                className="h-[450px] object-cover object-center md:h-[600px]"
                 width={1920}
-                height={800}
+                height={600}
                 loading="eager"
             />
             <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 translate-y-1/2 text-center">

@@ -1,13 +1,25 @@
-import { Layout } from "@/layout";
+import { H1, Section } from "@/components/common";
+import { Shop } from "@/components/shop";
+import { Layout } from "@/layouts";
+import { Collection, Product } from "@/types";
 
-export default function Shop() {
+export type ShopProps = {
+    products: Product[];
+    collections: Collection[];
+};
+
+export default function ShopPage({ products, collections }: ShopProps) {
+    console.log("products: ", products);
+
     return (
         <Layout title="Ecom | Shop">
-            <main>
-                <div>
-                    <h1 className="font-bold">Shop</h1>
-                </div>
-            </main>
+            <div className="rounded-lg bg-primary py-20 text-center text-primary-foreground md:py-28">
+                <H1 className="text-5xl font-bold md:text-7xl lg:text-7xl">
+                    Shop
+                </H1>
+            </div>
+
+            <Shop products={products} collections={collections} />
         </Layout>
     );
 }

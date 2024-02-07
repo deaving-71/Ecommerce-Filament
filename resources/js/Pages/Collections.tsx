@@ -1,13 +1,11 @@
-import { Layout } from "@/layout";
+import { Layout } from "@/layouts";
 
 export default function Collections() {
     return (
         <Layout title="Ecom">
-            <main>
-                <div>
-                    <h1 className="font-bold">Collections</h1>
-                </div>
-            </main>
+            <div>
+                <h1 className="font-bold">Collections</h1>
+            </div>
         </Layout>
     );
 }

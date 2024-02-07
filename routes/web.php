@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 /*
@@ -15,14 +17,34 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    $products = Product::where("is_featured", 1)->where("is_visible", 1)->take(8)->get();
+    $products = Product::where("is_featured", 1)
+        ->where("is_visible", 1)
+        ->with("categories")
+        ->take(8)
+        ->get();
+    $collections = Category::where("is_visible", 1)->get();
+
     return Inertia::render("Home", [
-        'products' => $products
+        'products' => $products,
+        'collections' => $collections
     ]);
 });
 
 Route::get('/shop', function () {
-    return Inertia::render("Shop");
+    $products = Product::with('categories')
+        ->when(Request::input("collections"), function ($query, $collections) {
+            $query->whereHas('categories', function ($subQuery) use ($collections) {
+                $subQuery->whereIn('slug', $collections);
+            });
+        })
+        ->where("is_visible", 1)
+        ->get();
+    $collections = Category::where("is_visible", 1)->get();
+
+    return Inertia::render("Shop", [
+        'products' => $products,
+        'collections' => $collections
+    ]);
 });
 
 Route::get('/collections', function () {

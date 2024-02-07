@@ -1,22 +1,26 @@
-import { Layout } from "@/layout/";
-import { Hero, Incentives } from "@/components/home";
-import { ProductGrid } from "@/components/common";
-import { Product } from "@/types";
-import { FeaturedProducts } from "@/components/home/featured-products";
+import { Layout } from "@/layouts";
+import {
+    Collections,
+    FeaturedProducts,
+    Hero,
+    Incentives,
+} from "@/components/home";
+import { Collection, Product } from "@/types";
 
 export type HomeProps = {
-    products: Product[]
-}
+    products: Product[];
+    collections: Collection[];
+};
 
-export default function Home({products}: HomeProps) {
-    console.log(products);
+export default function Home({ products, collections }: HomeProps) {
+    console.log("products: ", products);
+
     return (
         <Layout title="Ecom">
-            <main>
-                <Hero />
-                <Incentives />
-                <FeaturedProducts products={products}/>
-            </main>
+            <Hero />
+            <Incentives />
+            <FeaturedProducts products={products} />
+            <Collections collections={collections} />
         </Layout>
     );
 }

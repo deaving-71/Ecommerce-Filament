@@ -12,7 +12,7 @@ export function Layout({ children, title }: RootLayoutProps) {
             <div className="dark grid min-h-screen grid-rows-[auto,1fr,auto] bg-background text-foreground">
                 <div className="container">
                     <Header />
-                    {children}
+                    <main>{children}</main>
                 </div>
             </div>
         </>
