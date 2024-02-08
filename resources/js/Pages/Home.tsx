@@ -13,8 +13,6 @@ export type HomeProps = {
 };
 
 export default function Home({ products, collections }: HomeProps) {
-    console.log("products: ", products);
-
     return (
         <Layout title="Ecom">
             <Hero />

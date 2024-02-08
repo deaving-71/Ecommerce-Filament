@@ -9,8 +9,6 @@ export type ShopProps = {
 };
 
 export default function ShopPage({ products, collections }: ShopProps) {
-    console.log("products: ", products);
-
     return (
         <Layout title="Ecom | Shop">
             <div className="rounded-lg bg-primary py-20 text-center text-primary-foreground md:py-28">

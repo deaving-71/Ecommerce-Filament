@@ -37,6 +37,9 @@ Route::get('/shop', function () {
                 $subQuery->whereIn('slug', $collections);
             });
         })
+        ->when(Request::input("prices"), function ($query, $prices) {
+            $query->whereBetween("price", $prices);
+        })
         ->where("is_visible", 1)
         ->get();
     $collections = Category::where("is_visible", 1)->get();
