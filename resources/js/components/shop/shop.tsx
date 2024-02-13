@@ -1,24 +1,11 @@
-import { getHighestPricedProduct } from "@/lib/utils";
-import { Products, ProductsFilter } from ".";
-import { ProductGridProps, Section } from "../common";
-import { CollectionsProps } from "../home";
-import { Separator } from "../ui/separator";
-import { useMemo } from "react";
+import { Section } from "../common"
+import { Products, ProductsFilter } from "./"
 
-export type ShopProps = Pick<ProductGridProps, "products"> & CollectionsProps;
-export function Shop({ products, collections }: ShopProps) {
-    const highestPriceProducts = useMemo(
-        () => getHighestPricedProduct(products),
-        [],
-    );
-
-    return (
-        <Section className="flex">
-            <ProductsFilter
-                collections={collections}
-                highestPriceProducts={highestPriceProducts}
-            />
-            <Products products={products} />
-        </Section>
-    );
+export function Shop() {
+  return (
+    <Section className="grid grid-cols-2 grid-rows-[auto,auto] gap-4 2md:grid-cols-[260px,1fr]">
+      <ProductsFilter />
+      <Products />
+    </Section>
+  )
 }

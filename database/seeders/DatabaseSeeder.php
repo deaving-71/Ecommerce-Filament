@@ -26,5 +26,49 @@ class DatabaseSeeder extends Seeder
             'city' => 'admin',
             'zip_code' => 'admin',
         ]);
+
+        DB::table("categories")->insert([
+            "name" => "Mobile Phones",
+            "slug" => "mobile-phones",
+            "parent_id" => null,
+            "description" => "Mobile phones",
+            "is_visible" => true,
+        ]);
+
+        DB::table("products")->insert([
+            "name" => "iPhone 12",
+            "slug" => "iphone-12",
+            "description" => "iPhone 12",
+            "thumbnail" => "619f09kK7tL._AC_UF894,1000_QL80_.jpg",
+            "price" => 455.00,
+            "qty" => 45,
+            "is_visible" => true,
+            "is_featured" => true,
+            "type" => "deliverable",
+            "published_at" => now(),
+        ]);
+
+        DB::table("products")->insert([
+            "name" => "iPhone 14",
+            "slug" => "iphone-14",
+            "description" => "iPhone 14",
+            "thumbnail" => "Samsung_Galaxy_S24_5K2_scaled.jpg",
+            "price" => 699.99,
+            "qty" => 12,
+            "is_visible" => true,
+            "is_featured" => true,
+            "type" => "deliverable",
+            "published_at" => now(),
+        ]);
+
+        DB::table("category_product")->insert([
+            "category_id" => 1,
+            "product_id" => 1,
+        ]);
+
+        DB::table("category_product")->insert([
+            "category_id" => 1,
+            "product_id" => 2,
+        ]);
     }
 }

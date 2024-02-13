@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ShoppingCartController;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Request;
@@ -15,6 +17,10 @@ use Inertia\Inertia;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get("/auth/sign-in", [LoginController::class, "create"])->name("login");
+Route::post("/login", [LoginController::class, "store"]);
+Route::get("/logout", [LoginController::class, "destroy"]);
 
 Route::get('/', function () {
     $products = Product::where("is_featured", 1)
@@ -53,3 +59,15 @@ Route::get('/shop', function () {
 Route::get('/collections', function () {
     return Inertia::render("Collections");
 });
+
+
+Route::middleware("auth")->group(function () {
+    Route::get("/profile", function () {
+        return Inertia::render("Profile");
+    });
+});
+
+Route::get("/shopping-cart", [ShoppingCartController::class, "index"]);
+Route::post("/shopping-cart", [ShoppingCartController::class, "store"]);
+Route::patch("/shopping-cart/{id}", [ShoppingCartController::class, "update"]);
+Route::delete("/shopping-cart/{id}", [ShoppingCartController::class, "destroy"]);

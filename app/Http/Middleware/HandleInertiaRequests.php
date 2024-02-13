@@ -2,7 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\Cart;
+use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -37,7 +41,11 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            //
+            'auth.user' => fn () => $request->user()
+                ? $request->user()->only('id', 'name', 'email')
+                : null,
+
+            'cart' => Cart::get(request()),
         ]);
     }
 }

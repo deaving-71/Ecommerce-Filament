@@ -53,6 +53,9 @@
     * {
         @apply min-w-0 border-border;
     }
+    body {
+        @apply dark bg-background text-foreground;
+    }
 }
 
 html {

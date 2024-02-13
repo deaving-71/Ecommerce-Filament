@@ -1,12 +1,9 @@
-import { Product } from "@/types";
-import { ProductGrid, type ProductGridProps } from "../common";
+import { ProductGrid } from "./products-grid"
 
-export type ProductsProps = Pick<ProductGridProps, "products">;
-
-export function Products({ products }: ProductsProps) {
-    return (
-        <>
-            <ProductGrid className="flex-1" products={products} />
-        </>
-    );
+export function Products() {
+  return (
+    <>
+      <ProductGrid className="col-span-2  row-start-2 2md:col-start-2" />
+    </>
+  )
 }
