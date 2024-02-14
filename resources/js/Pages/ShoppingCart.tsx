@@ -1,16 +1,17 @@
 import { Layout } from "@/layouts"
-import { usePage } from "@inertiajs/react"
 
 import { H1, Section } from "@/components/common"
-import { CartTable } from "@/components/shopping-cart/"
+import { CartTable, Checkout } from "@/components/shopping-cart/"
 
 export default function ShoppingCart() {
-  console.log(usePage().props)
   return (
-    <Layout title="Cart">
+    <Layout title="Acme | Cart">
       <Section aria-labelledby="cart">
-        <H1>Cart</H1>
-        <CartTable />
+        <H1 className="pb-8">Cart</H1>
+        <div className="relative flex flex-col gap-5 md:flex-row">
+          <CartTable />
+          <Checkout />
+        </div>
       </Section>
     </Layout>
   )

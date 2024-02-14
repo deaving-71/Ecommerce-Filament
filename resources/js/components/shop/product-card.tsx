@@ -1,8 +1,7 @@
 import { Product } from "@/types"
-import { router } from "@inertiajs/react"
 
 import { formatPrice } from "@/lib/format"
-import { useShoppingCart } from "@/hooks/useShoppingCart"
+import { useShoppingCart } from "@/hooks/"
 
 import { H3, P } from "../common"
 import { Button } from "../ui/button"

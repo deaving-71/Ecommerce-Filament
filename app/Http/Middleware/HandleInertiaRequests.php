@@ -45,7 +45,7 @@ class HandleInertiaRequests extends Middleware
                 ? $request->user()->only('id', 'name', 'email')
                 : null,
 
-            'cart' => Cart::get(request()),
+            'cart' => Cart::get(),
         ]);
     }
 }

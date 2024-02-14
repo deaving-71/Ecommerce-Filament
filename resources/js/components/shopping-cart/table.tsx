@@ -1,10 +1,11 @@
+import { useShoppingCart } from "@/hooks"
+import { SharedProps } from "@/types"
+import { usePage } from "@inertiajs/react"
+
 import { formatPrice } from "@/lib/format"
-import { useShoppingCart } from "@/hooks/useShoppingCart"
-import { useShoppingCartPageProps } from "@/hooks/useShoppingCartPageProps"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -15,12 +16,11 @@ import { Icons } from "../icons"
 import { Button } from "../ui/button"
 
 export function CartTable() {
-  const { cart } = useShoppingCartPageProps()
+  const { cart } = usePage<SharedProps>().props
   const { updateQuantity, removeFromCart } = useShoppingCart()
 
   return (
-    <Table>
-      {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
+    <Table className="flex-1">
       <TableHeader>
         <TableRow>
           <TableHead>Item</TableHead>
@@ -31,14 +31,14 @@ export function CartTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {cart.map((item, idx) => (
-          <TableRow key={item.product_id + idx}>
+        {cart.items.map((item, idx) => (
+          <TableRow key={item.product.slug + idx}>
             <TableCell className="font-medium">
               <div className="flex items-center gap-2">
                 <img
                   src={"/storage/" + item.product.thumbnail}
                   alt={item.product.name}
-                  className="h-[80px] w-[80px] object-contain object-center"
+                  className="h-[80px] min-w-[80px] object-contain object-center"
                   loading="lazy"
                 />
                 {item.product.name}

@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Cookie;
 
 class Cart
 {
-    public static function get(Request $request)
+    public static function get()
     {
+        $request = request();
         $user = $request->user();
-
         if ($user) {
-            $shoppingCart = $user->shoppingCart()->first();
-            return $shoppingCart->load("items.product")->items;
+            $shoppingCart = $user->shoppingCart()->firstOrCreate([]);
+            return $shoppingCart->load("items.product");
         } else {
             return self::getCookieCart();
         }
@@ -25,16 +25,15 @@ class Cart
     public static function add()
     {
         $request = request();
+        $user = $request->user();
+
         $item = $request->validate([
             "product_id" => "required",
             "qty" => "required",
         ]);
 
-        $user = $request->user();
-
         if ($user) {
             $shoppingCart = $user->shoppingCart()->firstOrCreate([]);
-
             $shoppingCart->addOrUpdateItem($item['product_id'], $item['qty']);
         } else {
             return self::addToCartCookie($item);
@@ -44,11 +43,11 @@ class Cart
     public static function update(int $id)
     {
         $request = request();
+        $user = $request->user();
+
         $qty = $request->validate([
             "qty" => "required",
         ])["qty"];
-
-        $user = $request->user();
 
         if ($user) {
             $shoppingCart = $user->shoppingCart()->first();
@@ -68,27 +67,34 @@ class Cart
             $shoppingCart->removeItem($id);
         } else {
             $cart = self::getCookieCart();
-            $filteredCart = array_filter($cart, function ($cartItem) use ($id) {
+            $filteredCart = array_filter($cart['items'], function ($cartItem) use ($id) {
                 return $cartItem["product_id"] !== $id;
             });
 
-            self::setCartCookie($filteredCart);
+            $cart['items'] = $filteredCart;
+            $cart = self::updateCartSubtotal($cart);
+            self::setCartCookie($cart);
         }
     }
 
-    public static function getCookieCart()
+    protected static function getCookieCart()
     {
         $cart = Cookie::get("cart");
 
-        return $cart ? json_decode($cart, true) : [];
+        return $cart ? json_decode($cart, true) : [
+            'items' => [],
+            'subtotal' => 0.00,
+            'shipping_price' => 0.00,
+            'total_price' => 0.00,
+        ];
     }
 
-    public static function addToCartCookie($item)
+    protected static function addToCartCookie($item)
     {
         $cart = self::getCookieCart();
 
         $existingItemIndex = null;
-        foreach ($cart as $index => $cartItem) {
+        foreach ($cart['items'] as $index => $cartItem) {
             if ($cartItem["product_id"] === $item["product_id"]) {
                 $existingItemIndex = $index;
                 break;
@@ -96,39 +102,56 @@ class Cart
         }
 
         if ($existingItemIndex !== null) {
-            $cart[$existingItemIndex]["qty"] += 1;
+            $cart['items'][$existingItemIndex]['qty'] += 1;
         } else {
             $associatedProduct = Product::find($item["product_id"]);
-            $cart[] = [
+            $cart['items'][] = [
                 ...$item,
                 "product" => $associatedProduct
             ];
         }
 
+        $cart = self::updateCartSubtotal($cart);
         self::setCartCookie($cart);
-
-        return $cart;
     }
 
-    public static function updateCartCookie($id, $qty)
+    protected static function updateCartCookie($product_id, $qty)
     {
         $cart = self::getCookieCart();
 
-        foreach ($cart as $key => $cartItem) {
-            if ($cartItem["product_id"] === $id) {
-                $itemIndex = $key;
-                $cart[$itemIndex]["qty"] += $qty;
+        foreach ($cart['items'] as $idx => $cartItem) {
+            if ($cartItem['product_id'] === $product_id) {
+                $cart['items'][$idx]['qty'] +=  $qty;
                 break;
             }
         }
 
+        $cart = self::updateCartSubtotal($cart);
         self::setCartCookie($cart);
-
-        return $cart;
     }
 
-    public static function setCartCookie($cart)
+    protected static function setCartCookie($cart)
     {
         Cookie::queue("cart", json_encode($cart), 60 * 24 * 7); // Set cookie for 7 days
+    }
+
+    protected static function calculateSubtotal(array $items)
+    {
+        return array_reduce($items, function ($sum, $item) {
+            $sum += $item['product']['price']  * $item['qty'];
+            return $sum;
+        }, 0);
+    }
+
+    protected static function updateCartSubtotal(array $cart)
+    {
+        $subtotal = self::calculateSubtotal($cart['items']);
+
+        $shipping_price = 0;
+        $cart["subtotal"] = $subtotal;
+        $cart["shipping_price"] = $shipping_price;
+        $cart["total_price"] = $subtotal  + $shipping_price;
+
+        return $cart;
     }
 }

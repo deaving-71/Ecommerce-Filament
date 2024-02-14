@@ -26,7 +26,6 @@ export function useShoppingCart() {
         item
       )
       refetchCart()
-      console.log(response.data)
     } catch (error) {
       console.error(error)
     }
@@ -38,7 +37,6 @@ export function useShoppingCart() {
         `/shopping-cart/${id}`
       )
       refetchCart()
-      console.log(response.data)
     } catch (error) {
       console.error(error)
     }
@@ -51,7 +49,6 @@ export function useShoppingCart() {
         { qty }
       )
       refetchCart()
-      console.log(response.data)
     } catch (error) {
       console.error(error)
     }

@@ -47,8 +47,11 @@ export type AuthUser = {
 }
 
 export type ShoppingCart = {
-  id: string
+  id?: string
   items: CartItem[]
+  subtotal: number
+  shipping_price: number
+  total_price: number
 }
 
 export type CartItem = {
@@ -56,4 +59,9 @@ export type CartItem = {
   product: Product
   product_id: number
   qty: number
+}
+
+export type SharedProps = {
+  auth: AuthUser
+  cart: ShoppingCart
 }

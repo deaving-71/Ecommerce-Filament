@@ -37,12 +37,10 @@ export default function Login() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     router.post("/login", values, {
       onError: (err) => {
         if ("email" in err && typeof err.email === "string") {
           form.setError("root", { message: err.email })
-          console.log(err.email)
         }
       },
     })

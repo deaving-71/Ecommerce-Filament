@@ -14,7 +14,7 @@ class ShoppingCartController extends Controller
         return Inertia::render("ShoppingCart");
     }
 
-    public function store(Request $request)
+    public function store()
     {
         Cart::add();
 
