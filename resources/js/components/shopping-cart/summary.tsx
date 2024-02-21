@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/format"
 
 import { Button } from "../ui/button"
 
-export function Checkout() {
+export function Summary() {
   const { cart } = usePage<SharedProps>().props
 
   return (
@@ -27,8 +27,13 @@ export function Checkout() {
         <span>{formatPrice(cart.total_price)}</span>
       </div>
 
-      <Button className="w-full font-bold" size="lg" asChild>
-        <Link href="#">CHECKOUT</Link>
+      <Button
+        className="w-full font-bold"
+        size="lg"
+        disabled={cart.items.length === 0}
+        asChild
+      >
+        <Link href={cart.items.length ? "/checkout" : "#"}>CHECKOUT</Link>
       </Button>
     </div>
   )

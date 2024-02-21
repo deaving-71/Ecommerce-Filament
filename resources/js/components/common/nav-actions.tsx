@@ -1,3 +1,5 @@
+import { useCallback } from "react"
+import { useTheme } from "@/hooks"
 import { SharedProps } from "@/types"
 import { Link, usePage } from "@inertiajs/react"
 
@@ -6,6 +8,7 @@ import { Button } from "../ui/button"
 import { ProfileLink } from "./profile-link"
 
 export function NavActions() {
+  const { theme, toggleTheme } = useTheme()
   const iconSize = 20
 
   return (
@@ -27,8 +30,17 @@ export function NavActions() {
           </Button>
         </li>
         <li>
-          <Button variant="ghost" size="icon">
-            <Icons.moon size={iconSize} />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative size-[2.25rem]"
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? (
+              <Icons.moon size={iconSize} />
+            ) : (
+              <Icons.sun size={iconSize} />
+            )}
           </Button>
         </li>
       </ul>
@@ -42,7 +54,7 @@ function CartItemsCount() {
   if (cart.items.length === 0) return null
 
   return (
-    <span className="absolute -bottom-0.5 -right-0.5 inline-flex size-[14px] items-center justify-center rounded-full bg-primary text-[0.75rem] font-bold text-primary-foreground">
+    <span className="absolute -bottom-0.5 -right-0.5 z-10 inline-flex size-[14px] items-center justify-center rounded-full bg-primary text-[0.75rem] font-bold text-primary-foreground">
       {cart.items.length}
     </span>
   )

@@ -1,5 +1,5 @@
 import { useShopPageProps } from "@/hooks"
-import { router, usePage } from "@inertiajs/react"
+import { router } from "@inertiajs/react"
 
 import { formatPrice } from "@/lib/format"
 import { Input } from "@/components/ui/input"
@@ -8,32 +8,23 @@ import { Slider } from "@/components/ui/slider"
 import { H2, H3 } from "../common"
 import { Checkbox } from "../ui/checkbox"
 import { Label } from "../ui/label"
+import * as Preffix from "../ui/preffix-input"
 
 export type ProductsFilterProps = {
-  highestPriceProducts: number
   selectedCollections: string[]
   priceRange: number[]
   setPriceRange: React.Dispatch<React.SetStateAction<number[]>>
+  getFilteredProducts: (opts?: any) => void
 }
+
 export function MainProductsFilter({
   priceRange,
   setPriceRange,
   selectedCollections,
-  highestPriceProducts,
+  getFilteredProducts,
 }: ProductsFilterProps) {
-  const { collections } = useShopPageProps()
+  const { collections, highestPrice } = useShopPageProps()
 
-  function getFilteredProducts(opts?: any) {
-    const filters = {
-      collections: selectedCollections,
-      prices: priceRange,
-      ...opts,
-    }
-    router.get("/shop", filters, {
-      preserveState: true,
-      only: ["products"],
-    })
-  }
   return (
     <>
       <H2 className="pb-6">Filter</H2>
@@ -79,17 +70,48 @@ export function MainProductsFilter({
           <Slider
             className="pb-5"
             defaultValue={priceRange}
-            max={highestPriceProducts}
+            max={highestPrice}
             step={1}
-            minStepsBetweenThumbs={10}
+            minStepsBetweenThumbs={100}
             onValueCommit={(values: number[]) => {
               setPriceRange(values)
               getFilteredProducts({ prices: values })
             }}
           />
-          <div className="flex items-center gap-8">
-            <Input value={formatPrice(priceRange[0]!)} />
-            <Input value={formatPrice(priceRange[1]!)} />
+          <div className="flex items-center gap-4">
+            <Preffix.Root>
+              <Preffix.Label htmlFor="min-price">$</Preffix.Label>
+              <Preffix.Input
+                id="min-price"
+                min={0}
+                max={highestPrice}
+                value={priceRange[0]}
+                onInput={(e) => {
+                  if (priceRange[1] - e.target.value < 100) return
+                  setPriceRange([e.target.value, priceRange[1]])
+                  getFilteredProducts({
+                    prices: [e.target.value, priceRange[1]],
+                  })
+                }}
+              />
+            </Preffix.Root>
+            <Preffix.Root>
+              <Preffix.Label htmlFor="max-price">$</Preffix.Label>
+              <Preffix.Input
+                id="max-price"
+                min={0}
+                max={highestPrice}
+                value={priceRange[1]}
+                onInput={(e) => {
+                  if (e.target.value - priceRange[0] < 100) return
+
+                  setPriceRange([priceRange[0], e.target.value])
+                  getFilteredProducts({
+                    prices: [priceRange[0], e.target.value],
+                  })
+                }}
+              />
+            </Preffix.Root>
           </div>
         </div>
       </div>

@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('shopping_carts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("user_id")->nullable()->constrained("users")->cascadeOnDelete();
+            $table->foreignId("user_id")
+                ->nullable()
+                ->constrained("users")
+                ->cascadeOnDelete()
+                ->unique();
             $table->decimal("subtotal", 10, 2)->default(0);
             $table->decimal("shipping_price", 10, 2)->default(0);
             $table->decimal("total_price", 10, 2)->default(0);

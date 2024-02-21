@@ -1,2 +1,2 @@
 export * from "./table"
-export * from "./checkout"
+export * from "./summary"

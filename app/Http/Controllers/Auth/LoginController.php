@@ -24,6 +24,7 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $credentials['remember'])) {
+            //TODO: transform user's cart before regenerating
             $request->session()->regenerate();
 
             return redirect()->intended();

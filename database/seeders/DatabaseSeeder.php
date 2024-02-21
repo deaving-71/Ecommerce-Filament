@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@admin.com',
             'password' => Hash::make("admin"),
-            'fullname' => 'admin',
             'phone' => 'admin',
             'state' => 'admin',
             'city' => 'admin',
@@ -30,6 +29,7 @@ class DatabaseSeeder extends Seeder
         DB::table("categories")->insert([
             "name" => "Mobile Phones",
             "slug" => "mobile-phones",
+            "thumbnail" => "form-attachments/mobile-phones.jpg",
             "parent_id" => null,
             "description" => "Mobile phones",
             "is_visible" => true,

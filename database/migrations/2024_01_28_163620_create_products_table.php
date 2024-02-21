@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string("slug")->unique();
             $table->string("sku")->nullable()->unique();
             $table->longText("description")->nullable();
-            $table->string("thumbnail")->nullable();
+            $table->string("thumbnail");
             $table->decimal("price", 10, 2);
             $table->unsignedBigInteger("qty")->default(0);
             $table->boolean("is_visible")->default(false);

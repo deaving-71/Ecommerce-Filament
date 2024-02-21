@@ -5,7 +5,7 @@ import { Products, ProductsFilter } from "@/components/shop"
 
 export default function ShopPage() {
   return (
-    <Layout title="Ecom | Shop">
+    <Layout title="Shop">
       <div className="rounded-lg bg-primary py-20 text-center text-primary-foreground md:py-28">
         <H1 className="text-5xl font-bold md:text-7xl lg:text-7xl">Shop</H1>
       </div>

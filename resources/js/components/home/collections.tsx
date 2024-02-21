@@ -14,25 +14,27 @@ export function Collections() {
   const { collections } = useHomePageProps()
 
   return (
-    <Section>
+    <Section aria-labelledby="Our Collections">
       <H2 className="pb-8">Our Collections</H2>
       <Carousel>
         <CarouselContent className="-ml-2 md:-ml-4">
           {collections.map((collection, idx) => (
             <CarouselItem
               key={collection.name + idx}
-              className="lg:basis- basis-1/3 pl-2 text-center md:pl-4 lg:basis-1/5"
+              className="xs:basis-1/3 basis-1/2 pl-2 text-center md:pl-4 lg:basis-1/5"
             >
               <Link href={`/shop?collections[]=${collection.slug}`}>
                 <img
-                  src={"https://placekitten.com/g/250/250"}
+                  src={`/storage/${collection.thumbnail}`}
                   alt={collection.name}
-                  className="rounded-md object-contain object-center"
+                  className="rounded-md object-cover object-center"
                   loading="lazy"
-                  width={250}
-                  height={250}
+                  width={500}
+                  height={500}
                 />
-                <H3 className="pt-3 text-lg lg:text-xl">{collection.name}</H3>
+                <H3 className="xs:text-lg pt-3 text-base lg:text-xl">
+                  {collection.name}
+                </H3>
               </Link>
             </CarouselItem>
           ))}

@@ -1,6 +1,6 @@
 import { AuthLayout } from "@/layouts"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { router } from "@inertiajs/react"
+import { Link, router } from "@inertiajs/react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -47,7 +46,7 @@ export default function Login() {
   }
 
   return (
-    <AuthLayout title="Sign In">
+    <AuthLayout title="Sign in to your account">
       <div className="w-[450px]">
         <Form {...form}>
           <form
@@ -55,7 +54,9 @@ export default function Login() {
             className="space-y-6 rounded-lg border p-5"
           >
             <div className="space-y-2 text-center">
-              <H1 className="!text-2xl  font-medium">Sign In</H1>
+              <H1 className="!text-2xl  font-medium">
+                Sign in to your account
+              </H1>
               <p className="text-sm text-muted-foreground">
                 Please enter your email and password to login
               </p>
@@ -112,9 +113,23 @@ export default function Login() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full text-base">
-              Sign In
+            <Button
+              type="submit"
+              className="w-full text-base"
+              disabled={!form.formState.isValid}
+            >
+              Sign in
             </Button>
+
+            <p className="text-center text-sm text-muted-foreground">
+              <span className="">Don't have an account? </span>
+              <Link
+                href="/auth/sign-up"
+                className=" text-primary hover:underline"
+              >
+                Sign up
+              </Link>
+            </p>
           </form>
         </Form>
       </div>

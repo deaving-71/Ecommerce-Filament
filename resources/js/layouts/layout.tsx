@@ -9,7 +9,7 @@ export type RootLayoutProps = React.PropsWithChildren & {
 export function Layout({ children, title }: RootLayoutProps) {
   return (
     <>
-      <Head title={title} />
+      <Head title={`Acme | ${title}`} />
       <div className="grid min-h-screen grid-rows-[auto,1fr,auto] bg-background text-foreground">
         <div className="container">
           <Header />

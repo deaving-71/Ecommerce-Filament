@@ -26,17 +26,16 @@ class ShoppingCart extends Model
 
     public function addOrUpdateItem($product_id, $qty)
     {
-        $shipping_price = 0;
         try {
             $cartItem = $this->items()->where('product_id', $product_id)->firstOrFail();
             $cartItem->update(['qty' => $cartItem->qty + $qty]);
-            $this->calculateSubtotal();
+            $this->updateSubtotal();
         } catch (ModelNotFoundException $e) {
             $this->items()->create([
                 'product_id' => $product_id,
                 'qty' => $qty
             ]);
-            $this->calculateSubtotal();
+            $this->updateSubtotal();
         }
     }
 
@@ -47,16 +46,16 @@ class ShoppingCart extends Model
         }
 
         $this->items()->where('id', $itemId)->increment('qty', $qty);
-        $this->calculateSubtotal();
+        $this->updateSubtotal();
     }
 
     public function removeItem(int $id)
     {
         $this->items()->where('id', $id)->delete();
-        $this->calculateSubtotal();
+        $this->updateSubtotal();
     }
 
-    public function calculateSubtotal()
+    public function updateSubtotal()
     {
         $subtotal = 0;
 
@@ -70,5 +69,27 @@ class ShoppingCart extends Model
             'shipping_price' => $shipping_price,
             'total_price' => $subtotal + $shipping_price,
         ]);
+    }
+
+    public function checkout($cart)
+    {
+        $items = $this->items()->get();
+        $cartItems = collect($items)->map(function ($item) {
+            return [
+                "product_id" => $item["product_id"],
+                "qty" => $item["qty"],
+            ];
+        });
+
+        $user = request()->user();
+        $order = $user->orders()->create([
+            ...$cart,
+            "subtotal" => $this["subtotal"],
+            "shipping_price" => $this["shipping_price"],
+            "total" => $this["total_price"],
+        ]);
+        $order->items()->createMany($cartItems);
+
+        return $order;
     }
 }

@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react"
 import { useShopPageProps } from "@/hooks"
-import { usePage } from "@inertiajs/react"
+import { Link, router, usePage } from "@inertiajs/react"
 import { useMediaQuery } from "usehooks-ts"
 
 import { getHighestPricedProduct } from "@/lib/utils"
 
-import { CollectionsProps } from "../home"
 import { Icons } from "../icons"
 import { Button } from "../ui/button"
 import {
@@ -23,43 +22,72 @@ import { MainProductsFilter } from "./main-products-filter"
 //?it doesn't lose its state
 
 export function ProductsFilter() {
-  const { products } = useShopPageProps()
+  const { highestPrice } = useShopPageProps()
 
-  const highestPriceProducts = useMemo(() => {
-    return getHighestPricedProduct(products)
-  }, [])
-
-  const [priceRange, setPriceRange] = useState([0, highestPriceProducts])
+  const [priceRange, setPriceRange] = useState([0, highestPrice])
   const searchParams = new URLSearchParams(window.location.search)
   const selectedCollections = searchParams.getAll("collections[]")
+  const sortBy = searchParams.get("sortBy")
+  const order = searchParams.get("order")
   const md2 = useMediaQuery("(max-width: 968px)")
 
+  const isFiltered =
+    sortBy ||
+    order ||
+    selectedCollections.length !== 0 ||
+    priceRange[0] !== 0 ||
+    priceRange[1] !== highestPrice
+
   const FilterWrapper = md2 ? MobileWrapper : DefaultWrapper
+
+  function getFilteredProducts(opts?: any) {
+    const filters = {
+      collections: selectedCollections,
+      prices: priceRange,
+      sortBy,
+      order,
+      ...opts,
+    }
+    router.get("/shop", filters, {
+      preserveState: true,
+      only: ["products"],
+    })
+  }
 
   return (
     <>
       <div className="col-start-2 row-start-1 flex justify-end">
-        <Select>
-          <SelectTrigger className="w-[180px]">
+        <Select
+          onValueChange={(value) => {
+            const [sortBy, order] = value.split("-")
+            getFilteredProducts({ sortBy, order })
+          }}
+        >
+          <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="featured">Featured</SelectItem>
-              <SelectItem value="best-selling">Best Selling</SelectItem>
-              <SelectItem value="price-asc">Price: Ascending</SelectItem>
-              <SelectItem value="price-desc">Price: Descending</SelectItem>
+              <SelectItem value="price-asc">Price: Low to High</SelectItem>
+              <SelectItem value="price-desc">Price: High to Low</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
       <FilterWrapper>
         <MainProductsFilter
-          highestPriceProducts={highestPriceProducts}
           selectedCollections={selectedCollections}
           priceRange={priceRange}
           setPriceRange={setPriceRange}
+          getFilteredProducts={getFilteredProducts}
         />
+        <div className="hidden justify-end 2md:flex">
+          {isFiltered && (
+            <Button variant="link" asChild>
+              <Link href="/shop">reset</Link>
+            </Button>
+          )}
+        </div>
       </FilterWrapper>
     </>
   )
@@ -87,6 +115,7 @@ function MobileWrapper({ children }: ProductsFilterWrapperProps) {
           <Icons.filter size={18} /> Filter
         </Button>
       </SheetTrigger>
+
       <SheetContent side="bottom">{children}</SheetContent>
     </Sheet>
   )

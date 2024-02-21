@@ -46,7 +46,20 @@ class CategoryResource extends Resource
                             ->dehydrated()
                             ->unique(Category::class, "slug", ignoreRecord: true),
                         Forms\Components\MarkdownEditor::make("description")->columnSpan("full"),
-                    ])->columns(2)
+                    ])->columns(2),
+
+                    Forms\Components\Section::make("Thumbnail")
+                        ->schema([
+                            Forms\Components\FileUpload::make("thumbnail")
+                                ->directory("form-attachments")
+                                ->preserveFilenames()
+                                ->image()
+                                ->imageEditor()
+                                ->hiddenLabel()
+                                ->imageResizeTargetWidth('500')
+                                ->imageResizeTargetHeight('500'),
+                        ])
+                        ->collapsible(),
                 ])->columnSpan(2),
                 Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make("Status")
@@ -67,6 +80,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make("thumbnail")->toggleable(),
                 Tables\Columns\TextColumn::make("name")->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make("slug")->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make("cateogry.name")->label("Parent Category")->searchable()->toggleable(),

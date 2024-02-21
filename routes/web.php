@@ -1,6 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MyOrdersControllers;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Models\Category;
 use App\Models\Product;
@@ -18,9 +24,13 @@ use Inertia\Inertia;
 |
 */
 
-Route::get("/auth/sign-in", [LoginController::class, "create"])->name("login");
+Route::middleware("guest")->group(function () {
+    Route::get("/auth/sign-in", [LoginController::class, "create"])->name("login");
+    Route::get("/auth/sign-up", [RegisterController::class, "create"])->name("register");
+});
+
 Route::post("/login", [LoginController::class, "store"]);
-Route::get("/logout", [LoginController::class, "destroy"]);
+Route::post("/register", [RegisterController::class, "store"]);
 
 Route::get('/', function () {
     $products = Product::where("is_featured", 1)
@@ -37,7 +47,10 @@ Route::get('/', function () {
 });
 
 Route::get('/shop', function () {
-    $products = Product::with('categories')
+    $sortBy = Request::input("sortBy");
+    $orderBy = Request::input("order");
+
+    $query = Product::with('categories')
         ->when(Request::input("collections"), function ($query, $collections) {
             $query->whereHas('categories', function ($subQuery) use ($collections) {
                 $subQuery->whereIn('slug', $collections);
@@ -46,28 +59,49 @@ Route::get('/shop', function () {
         ->when(Request::input("prices"), function ($query, $prices) {
             $query->whereBetween("price", $prices);
         })
-        ->where("is_visible", 1)
-        ->get();
-    $collections = Category::where("is_visible", 1)->get();
+        ->where("is_visible", 1);
 
+    if ($sortBy && $orderBy) {
+        $query->orderBy($sortBy, $orderBy);
+    }
+
+    $collections = Category::where("is_visible", 1)->get();
+    $products = $query->get();
+
+    $highestPrice = Product::where("is_visible", 1)
+        ->max("price");
     return Inertia::render("Shop", [
         'products' => $products,
-        'collections' => $collections
+        'collections' => $collections,
+        "highestPrice" => $highestPrice,
     ]);
 });
 
 Route::get('/collections', function () {
-    return Inertia::render("Collections");
+    $collections = Category::where("is_visible", 1)->get();
+    return Inertia::render("Collections", [
+        'collections' => $collections
+    ]);
 });
 
 
 Route::middleware("auth")->group(function () {
-    Route::get("/profile", function () {
-        return Inertia::render("Profile");
-    });
+    Route::delete("/logout", [LoginController::class, "destroy"]);
+
+    Route::get("/profile", [ProfileController::class, "create"]);
+    Route::put("/profile", [ProfileController::class, "update"]);
+    Route::get("/profile/my-orders", [MyOrdersControllers::class, "index"]);
+    Route::get("/profile/my-orders/{number}", [MyOrdersControllers::class, "show"]);
+
+    Route::put("/password", [PasswordController::class, "update"]);
 });
 
 Route::get("/shopping-cart", [ShoppingCartController::class, "index"]);
 Route::post("/shopping-cart", [ShoppingCartController::class, "store"]);
 Route::patch("/shopping-cart/{id}", [ShoppingCartController::class, "update"]);
 Route::delete("/shopping-cart/{id}", [ShoppingCartController::class, "destroy"]);
+
+Route::get("/checkout", [CheckoutController::class, "create"]);
+Route::post("/checkout", [CheckoutController::class, "store"]);
+
+// Route::get("/invoices/{id}", [InvoiceController::class, "show"]);

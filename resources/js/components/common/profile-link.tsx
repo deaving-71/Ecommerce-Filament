@@ -1,3 +1,4 @@
+import { profileLinks } from "@/layouts"
 import { SharedProps } from "@/types"
 import { Link, usePage } from "@inertiajs/react"
 
@@ -24,22 +25,26 @@ export function ProfileLink({ iconSize = 20 }: ProfileLinkProps) {
 
   return user ? (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="size-[2.25rem]">
           <Icons.user size={iconSize} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        {profileLinks.map((link) => (
+          <DropdownMenuItem key={link.url}>
+            <Link href={link.url}>{link.name}</Link>
+          </DropdownMenuItem>
+        ))}
         <DropdownMenuItem>
-          <Link href="/profile">Profile</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/logout">Logout</Link>
+          <Link href="/logout" method="delete" as="button">
+            Logout
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   ) : (
-    <Button variant="ghost" size="icon" className="size-[2.25rem]">
+    <Button variant="ghost" size="icon" className="size-[2.25rem]" asChild>
       <Link href="/profile">
         <Icons.user size={iconSize} />
       </Link>

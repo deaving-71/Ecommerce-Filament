@@ -1,9 +1,11 @@
 import {
   BadgePercent,
   Command,
+  Dot,
   Filter,
   Headset,
   Moon,
+  Package,
   RefreshCcw,
   ShoppingBag,
   SunMedium,
@@ -28,6 +30,8 @@ const icons = {
   user: User,
   filter: Filter,
   trash: Trash,
+  dot: Dot,
+  package: Package,
 }
 
 export const Icons: IconsType = icons
