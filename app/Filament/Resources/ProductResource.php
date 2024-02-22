@@ -120,7 +120,6 @@ class ProductResource extends Resource
                         Forms\Components\Select::make("categories")
                             ->relationship()
                             ->label("Category")
-                            ->multiple()
                             ->required()
                             ->native(false)
                             ->options(Category::query()->pluck("name", "id")),

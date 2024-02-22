@@ -12,6 +12,8 @@ use Filament\Forms\Components\Actions\Action as ActionsAction;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -52,8 +54,30 @@ class OrderResource extends Resource
                             Forms\Components\Select::make("user_id")
                                 ->label("Customer")
                                 ->relationship("user", "name")
-                                ->searchable()
+                                ->searchable(),
+
+
+                            Forms\Components\TextInput::make("name")
                                 ->required(),
+                            Forms\Components\TextInput::make("email")
+                                ->email()
+                                ->required(),
+
+                            Forms\Components\Split::make([
+                                Forms\Components\TextInput::make("state")
+                                    ->required(),
+                                Forms\Components\TextInput::make("city")
+                                    ->required(),
+                                Forms\Components\TextInput::make("zip_code")
+                                    ->required(),
+                            ])->columnSpanFull(),
+
+                            Forms\Components\Textarea::make("street_address")
+                                ->columnSpanFull()
+                                ->rows(5),
+
+                            Forms\Components\TextInput::make("phone")
+                                ->tel(),
 
                             Forms\Components\ToggleButtons::make("status")
                                 ->required()
@@ -72,7 +96,8 @@ class OrderResource extends Resource
                                     'delivered' => 'success',
                                     'canceled' => 'danger',
                                     'declined' => 'danger',
-                                ])->inline(),
+                                ])->inline()
+                                ->columnSpanFull(),
 
                             Forms\Components\MarkdownEditor::make("notes")->columnSpanFull(),
                         ])->columns(2),
@@ -105,6 +130,7 @@ class OrderResource extends Resource
                                             Forms\Components\TextInput::make("qty")
                                                 ->required()
                                                 ->integer()
+                                                ->minValue(0)
                                                 ->default(1),
                                         ])
                                     ])
@@ -172,12 +198,22 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make("number")->searchable()->toggleable(),
-                Tables\Columns\TextColumn::make("user.fullname")->label("Customer")->searchable()->sortable()->toggleable(),
-
+                Tables\Columns\TextColumn::make("number")
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn ($state) => ucwords($state))
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
                         'processing' => 'gray',
@@ -185,10 +221,14 @@ class OrderResource extends Resource
                         'delivered' => 'success',
                         'canceled' => 'danger',
                         'declined' => 'danger',
-                    })->searchable()->sortable()->toggleable(),
+                    })
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make("total")
                     ->label("Total Price")
+                    ->money("USD")
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()->money()->label("Total Revenue")
                     ])
@@ -216,6 +256,71 @@ class OrderResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Infolists\Components\Group::make()->schema([
+                Infolists\Components\Section::make("Order Details")->schema([
+                    Infolists\Components\Split::make([
+                        Infolists\Components\TextEntry::make("number"),
+                        Infolists\Components\TextEntry::make("created_at"),
+                        Infolists\Components\TextEntry::make("status")
+                            ->formatStateUsing(fn ($state) => ucwords($state))
+                            ->badge()
+                            ->colors([
+                                'pending' => 'warning',
+                                'processing' => 'primary',
+                                'shipped' => 'info',
+                                'delivered' => 'success',
+                                'canceled' => 'danger',
+                                'declined' => 'danger',
+                            ]),
+                    ]),
+
+                    Infolists\Components\Split::make([
+                        Infolists\Components\TextEntry::make("name"),
+                        Infolists\Components\TextEntry::make("email"),
+                        Infolists\Components\TextEntry::make("phone"),
+                    ]),
+                ]),
+
+                Infolists\Components\Section::make("Shipping Address")->schema([
+                    Infolists\Components\Split::make([
+                        Infolists\Components\TextEntry::make("state"),
+                        Infolists\Components\TextEntry::make("city"),
+                        Infolists\Components\TextEntry::make("zip_code"),
+                    ]),
+                    Infolists\Components\TextEntry::make("street_address")->columnSpanFull(),
+                ]),
+
+                Infolists\Components\Section::make("Products")->schema([
+                    Infolists\Components\RepeatableEntry::make("items")
+                        ->schema([
+                            Infolists\Components\Split::make([
+                                Infolists\Components\ImageEntry::make("product.thumbnail")
+                                    ->width("80px")
+                                    ->height("80px"),
+                                Infolists\Components\TextEntry::make("product.name")
+                                    ->label("Product"),
+                                Infolists\Components\TextEntry::make("qty")->label("Quantity"),
+                                Infolists\Components\TextEntry::make("product.price")->label("Price"),
+                            ])
+                        ])
+                ])->collapsible(),
+
+                Infolists\Components\Section::make("Summary")->schema([
+                    Infolists\Components\Split::make([
+                        Infolists\Components\TextEntry::make("subtotal")->label("Subtotal")->money("USD"),
+                        Infolists\Components\TextEntry::make("shipping_price")
+                            ->label("Shipping Price"),
+                        Infolists\Components\TextEntry::make("total")->money("USD"),
+                    ])
+                ]),
+            ])->columnSpanFull(),
+
+        ]);
     }
 
     public static function getRelations(): array

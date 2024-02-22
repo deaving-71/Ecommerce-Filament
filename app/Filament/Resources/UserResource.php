@@ -35,15 +35,11 @@ class UserResource extends Resource
                 Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make("User Account")->schema([
                         Forms\Components\TextInput::make("name")->required(),
-                        Forms\Components\TextInput::make("email")->email()->required(),
                         Forms\Components\TextInput::make("password")->required(),
-                    ]),
-                    Forms\Components\Section::make("Customer Details")->schema([
-                        Forms\Components\TextInput::make("fullname")->required(),
+                        Forms\Components\TextInput::make("email")->email()->required(),
                         Forms\Components\TextInput::make("phone")->tel()->required(),
                     ])->columns(2),
-                ]),
-                Forms\Components\Group::make()->schema([
+
                     Forms\Components\Section::make("Address")->schema([
                         Forms\Components\Split::make([
                             Forms\Components\TextInput::make("state")->required(),
@@ -52,6 +48,9 @@ class UserResource extends Resource
                         ]),
                         Forms\Components\Textarea::make("street_address"),
                     ]),
+                ]),
+
+                Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make("Status")->schema([
                         Forms\Components\Toggle::make("is_active")
                             ->label("Active")
@@ -66,8 +65,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make("fullname")->searchable()->sortable()->toggleable(),
-                Tables\Columns\TextColumn::make("name")->label("username")->searchable()->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make("name")->searchable()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make("email")->searchable()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make("phone")->searchable()->sortable()->toggleable(),
                 Tables\Columns\IconColumn::make("is_active")->label("Status")->boolean()->toggleable(),
